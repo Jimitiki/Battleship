@@ -21,21 +21,17 @@ router.get('/', function(req, res, next) {
 
 router.get('/open-session', function(req, res, next) {
   var sessionID = generateSessionID();
-  var array1 = [];
-  var array2 = [];
-  for (var i = 0; i <= 15; i++){
-    array1.push(Math.floor(Math.random() * 100));
-    array2.push(Math.floor(Math.random() * 100));
-  }
-  console.log(array1);
-  console.log(array2);
   var session = {
-    id: sessionID,
-    p1Ships: array1,
-    p2Ships: array2
+    hasGuessed: false,
+    guessPlayer: 1,
+    guessLocation: -1,
+    shipSunk: false,
+    hit: false,
+    p1Ships: {},
+    p2Ships: {},
+    ready: false
   }
   sessions[sessionID] = session;
-  console.log('hohoho');
   res.status(200).json({sessionID: sessionID});
 });
 
@@ -44,6 +40,7 @@ router.get('/join-session', function(req, res, next) {
   var success = false;
   if (sessions[session]) {
     success = true;
+    sessions[session]["ready"] = true;
   }
   console.log(sessions[session]);
   var result = {success: success, sessionID: session};
@@ -51,14 +48,17 @@ router.get('/join-session', function(req, res, next) {
 });
 
 router.post('/ships', function(req, res, next) {
-  console.log(req);
-  var body = req.body;
-  console.log(body);
-  //console.log(JSON.parse(req.rawBody));
-  var sessionID = body["sessionID"];
-  var player = body["player"];
-  console.log(body["ships[]"]);
-  res.json(body);
+	var data = JSON.parse(req.body.data);
+	console.log(data);
+	var session = sessions[data.session];
+	var playerShips = "p" + data.player + "Ships";
+	console.log(playerShips);
+	if (typeof session[playerShips].battleship === "undefined") {
+		session[playerShips] = data.ships;
+		console.log(session);
+	}
+	var result = {result: "ok"};
+	res.json(result);
 });
 
 router.get('/guess', function(req, res, next) {
@@ -68,15 +68,58 @@ router.get('/guess', function(req, res, next) {
   console.log(req.query);
   console.log("guess: " + guess + "  player: " + player + "  sessionID: " + session);
   session = sessions[session];
-  var coordinates = (player == 1 ? session.p2Ships : session.p1Ships);
+  var ships = (player == 1 ? session.p2Ships : session.p1Ships);
   var hit = false;
-  for (var i = 0; i < coordinates.length; i++) {
-    if (guess == coordinates[i]) {
-      hit = true;
-      break;
-    }
+  var result = {};
+  for (var ship in ships) {
+	var coordinates = ships[ship];
+	for (var i = 0; i < coordinates.length; i++) {
+    		if (guess == coordinates[i]) {
+      			hit = true;
+			coordinates.splice(i, 1);
+			if (coordinates.length === 0)
+			{
+				session.shipSunk = ship;
+				result.ship = ship;
+				delete ships[ship];
+			}
+      			break;
+		}
+    	}
   }
-  var result = {hit: hit};
+  if (Object.keys(ships).length === 0 && obj.constructor === Object) {
+	result.playerWins = true;
+	session.winner = player;
+  }
+  session.hit = hit;
+  session.guessLocation = guess;
+  session.hasGuessed = true;
+  console.log(session);
+  result.hit = hit;
   res.status(200).json(result);
+});
+router.get('/check-player', function(req, res, next) {
+	var session = sessions[req.query.session];
+	var ready = session.ready;
+	result = {joined: ready};
+	res.status(200).json(result);
+});
+router.get('/check-guess', function(req, res, next) {
+	var session = sessions[req.query.session];
+	var result = {isTurnOver: session.hasGuessed};
+	if (req.query.player != session.guessPlayer && session.hasGuessed) {
+		session.hasGuessed = false;
+		session.guessPlayer = req.query.player;
+		result.hit = session.hit;
+		result.coordinates = session.guessLocation
+		if (session.shipSunk) {
+			result.shipSunk = session.shipSunk;
+			session.shipSunk = false;
+		}
+		if (session.winner) {
+			result.winner = winner;
+		}
+	}
+	res.status(200).json(result);
 });
 module.exports = router;
