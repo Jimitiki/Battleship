@@ -18,7 +18,7 @@ $(document).ready(function() {
 		gameboard += "<div>";
 		for(y = 0; y < 10; y++)
 		{
-			gameboard += '<img src="sprites/water.png" class="tile" id="' + letter[x] + (y+1) + '">';
+			gameboard += '<img src="sprites/water.png" class="unclicked" id="' + letter[x] + (y+1) + '">';
 		}
 		gameboard += "</div>";
 	}
@@ -138,8 +138,11 @@ $(document).ready(function() {
 
 	});
 
-	$(".tile").click(function(e){
+	$(".unclicked").click(function(e){
 		var mytile = $(this).attr("id");
+
+		$(this).removeClass("unclicked");
+		$(this).off("click");
 		console.log(mytile);
 	});
 });
