@@ -1,46 +1,69 @@
-body{
-
-	font-family: Arial, Helvetica, sans-serif;
-
-	font-size: 70%;
-
-	text-indent: 10px;
-
-	margin-bottom: 20%;
-
-	background-color: #ccff00;
-
-	font-weight: 900;
-
-	color: #ff3300;
+body {
+  padding: 0 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
+h1 {
+    text-align: center;
 }
 
-
-h1{
-
-	margin-bottom: 4px;
-
-	margin-top: 1px;
-
-	font-size: 300%;
-
-	font-weight: 900;
-
-	color: #3300ff;
-
+.game-grid {
+	max-height: 520px;
+	max-width: 500px;
+    width: auto;
+    height: auto;
 }
 
-input
-{
-	background-color: #00ccff;
-	color: #3300ff;
-	border: none;
-	padding: 5px 5px;
-	border-radius: 5px;
-	position: center;
-	font-weight: 900;
+.game-tile {
+    max-height: 10%;
+    max-width: 10%;
+    height: auto;
+    width: auto;
+    float: left;
+}
+
+.board-title {
+    margin-top: 10px;
+    max-height: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+.alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.7;
+    min-width: 20%;
+    width: auto;
+    font-size: 40px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+#hit-alert {
+    background-color: indianred;
+    color: darkred;
+}
+
+#miss-alert {
+    background-color: lightgoldenrodyellow;
+    color: darkgoldenrod;
+}
+
+#player-board {
+    float: left;
+}
+
+#opponent-board {
+    float: right;
+}
+#turn-msg {
+    position: absolute;
+    bottom: 10px;
+    font-size: 18px;
+}
+#ship-sunk {
+    font-size: 24px;
 }

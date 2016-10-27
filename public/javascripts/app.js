@@ -5,7 +5,6 @@ var shipLengths = {carrier: 5, battleship: 4, submarine: 3, cruiser: 3, destroye
 function createGame() {
 	this.player = 1;
 	$.getJSON("/open-session", function(data) {
-		console.log(data);
 		gameData.player = 1;
 		gameData.session = data.sessionID;
 
@@ -19,12 +18,12 @@ function joinGame() {
 	var sessionID = $("#sessionfield").val();
 	var url = "/join-session?q=" + sessionID;
 	$.get(url, function(data) {
-		console.log(data);
 		if (data.success) {
 			gameData.player = 2;
 			gameData.session = data.sessionID;
             $("#init").hide();
             initializeGame();
+            $("#opponent-board img").css("opacity", 0.6);
             var opponent = 3 - gameData.player;
             $("#other-player-num").text("1");
             $("#turn-msg").text("Player " + opponent + "'s turn");
@@ -35,22 +34,43 @@ function joinGame() {
 function submitShips() {
 	var url = "/ships";
 	var data  = {data: JSON.stringify({ships: gameData.ships, session: gameData.session, player: gameData.player})};
-	console.log(data);
 	$.post(url, data, function(data, status){
-		console.log(data);
 	});
 }
 function submitGuess() {
     $(".not-guessed").off("click");
     var guess = $(this).attr("id");
     $(this).removeClass("not-guessed");
-    console.log(guess);
     var url = "/guess";
     data = {guess: guess, player: gameData.player, session: gameData.session};
     var opponent = 3 - gameData.player;
     $.getJSON(url, data, function(data) {
-        var image = data.hit ? "/images/ship_hit.png" : "/images/miss.png";
+        $("#player-board img").css("opacity", 1);
+        $("#opponent-board img").css("opacity", 0.6);
+        var image = "";
+        if (data.hit) {
+            image = "/images/ship_hit.png";
+            if (data.ship) {
+                console.log("You sank a " + data.ship);
+                $("#ship-sunk").text("You sank a " + data.ship);
+                $("#ship-sunk").show();
+            }
+            $("#hit-alert").show();
+            setTimeout(function() {
+                $("#hit-alert").hide(800, function() {
+                    $("#ship-sunk").hide();
+                });
+            }, 300);
+        }
+        else {
+            image = "/images/miss.png";
+            $("#miss-alert").show();
+            setTimeout(function() {
+                $("#miss-alert").hide(800);                
+            }, 300);
+        }
         $("#opponent-board #" + guess).attr("src", image);
+        console.log(data);
         if (data.playerWins) {
             $("#turn-msg").text("You Win!")
         }
@@ -69,6 +89,7 @@ function waitForJoin() {
 			if (data.joined) {
 				clearInterval(interval);
 				initializeGame();
+                $("#player-board img").css("opacity", 0.6);
                 $(".not-guessed").on("click", submitGuess);
                 $("#turn-msg").text("Your turn");
                 $("#other-player-num").text("2");
@@ -85,18 +106,22 @@ function pollServer() {
 		url = '/check-guess';
 		data = {player: gameData.player, session: gameData.session};
 		$.getJSON(url, data, function(data) {
-			console.log(data);
 			if (data.isTurnOver) {
+                $("#opponent-board img").css("opacity", 1);
+                $("#player-board img").css("opacity", 0.6);
 				clearInterval(interval);
                 if (data.hit) {
                     $("#player-board #" + data.coordinates).attr("src", "/images/ship_hit.png");
-                    //$("#hit-alert").show();
-                    //$("#hit-alert").hide('slow');
+                    if (data.shipSunk) {
+                        console.log("your " + data.shipSunk + "has sunk");
+                    }
+                    $("#hit-alert").show();
+                    $("#hit-alert").hide('slow');
                 }
                 else {
                     $("#player-board #" + data.coordinates).attr("src", "/images/miss.png");
-                    //$("#miss-alert").show();
-                    //$("#miss-alert").hide('slow');
+                    $("#miss-alert").show();
+                    $("#miss-alert").hide('slow');
                 }
                 if (data.playerLoses) {
                     $("#turn-msg").text("You Lose!");
@@ -114,12 +139,12 @@ function renderGame(shipTiles) {
     $("#game-load").hide();
     $("#game-view").show();
     
-	for(x = 0; x < 100; x++)
+	for(x = 99; x >= 0; x--)
 	{
         var pTile = '<img src="/images/water.png" class="game-tile" id="' + x + '">';
         var oTile = '<img src="/images/water.png" class="game-tile not-guessed" id="' + x + '">';
-        $("#player-board").append(pTile);
-        $("#opponent-board").append(oTile)
+        $("#player-board").prepend(pTile);
+        $("#opponent-board").prepend(oTile)
     }
     for (var i = 0; i < shipTiles.length; i++)
     {
@@ -174,7 +199,6 @@ function initializeGame() {
         gameData.ships[ship] = shipCoordinates;
         shipTiles = shipTiles.concat(shipCoordinates);
     }
-    console.log(gameData.ships);
     submitShips();   
     renderGame(shipTiles);
 };

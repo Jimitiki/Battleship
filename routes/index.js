@@ -86,7 +86,6 @@ router.get('/guess', function(req, res, next) {
             }
     	}
   }
-  console.log(session);
   if (!session[shipCount]) {
 	result.playerWins = true;
 	session.winner = player;
