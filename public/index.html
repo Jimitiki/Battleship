@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html>
     <head>
 	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
@@ -6,20 +6,23 @@
         <title>Battleship</title>
     </head>
     <body>
-	<div id="init">
-		<input type="button" value="create new game" id="creategame">
-		<input type="button" value="join a game" onclick="$('#join').show();">
-		<div id="join" style="display:none">
-			<input type="text" id="sessionfield"><input type="button" value="join game" id="joingame">
-		</div>
-	</div>
-	<div id="guess" style="display: none">
-		<span id="session-display"></span>
-        	<input type="text" id="guessInput" class="guess-disable">
-        	<input type="button" value="submit" id="submit-guess" class="guess-disable">
-		<span id="msg">
-	</div>
-
+        <div id="init">
+            <input type="button" value="create new game" id="creategame">
+            <input type="button" value="join a game" onclick="$('#join').show();">
+            <div id="join" style="display:none">
+                <input type="text" id="sessionfield"><input type="button" value="join game" id="joingame">
+            </div>
+        </div>
+        <div id="game-load">
+            <p id="wait-msg">Waiting for player 2...</p>
+            <p id="session-msg">Your game id is <span id="session-id"></span>. Player 2 must enter this id to join your game.</p>
+        </div>
+        <div id="game-view" style="display: none">
+            <h3 id="session-display"></h3>
+            <div id="player-board"></div>
+            <div id="opponent-board"></div>
+            <span id="turn-msg"></span>
+        </div>
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script type="text/javascript" src="/javascripts/app.js"></script>
