@@ -3,6 +3,35 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
+h1 {
+    text-align: center;
+}
+
+.game-grid {
+	max-height: 520px;
+	max-width: 500px;
+    width: auto;
+    height: auto;
+}
+
+.game-tile {
+    max-height: 50px;
+    max-width: 50px;
+    height: auto;
+    width: auto;
+    float: left;
+}
+
+.board-title {
+    max-height: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+#player-board {
+    float: left;
+}
+
+#opponent-board {
+    float: right;
 }

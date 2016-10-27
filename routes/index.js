@@ -5,9 +5,9 @@ var sessions = {};
 
 function generateSessionID() {
     var id = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    for( var i=0; i < 6; i++ )
+    for( var i=0; i < 5; i++ )
         id += possible.charAt(Math.floor(Math.random() * possible.length));
     return id;
 }
@@ -27,6 +27,8 @@ router.get('/open-session', function(req, res, next) {
     guessLocation: -1,
     shipSunk: false,
     hit: false,
+    p1Count: 5,
+    p2Count: 5,
     p1Ships: {},
     p2Ships: {},
     ready: false
@@ -42,20 +44,16 @@ router.get('/join-session', function(req, res, next) {
     success = true;
     sessions[session]["ready"] = true;
   }
-  console.log(sessions[session]);
   var result = {success: success, sessionID: session};
   res.status(200).json(result);
 });
 
 router.post('/ships', function(req, res, next) {
 	var data = JSON.parse(req.body.data);
-	console.log(data);
 	var session = sessions[data.session];
 	var playerShips = "p" + data.player + "Ships";
-	console.log(playerShips);
 	if (typeof session[playerShips].battleship === "undefined") {
 		session[playerShips] = data.ships;
-		console.log(session);
 	}
 	var result = {result: "ok"};
 	res.json(result);
@@ -65,36 +63,37 @@ router.get('/guess', function(req, res, next) {
   var guess = req.query.guess;
   var player = req.query.player;
   var session = req.query.session;
-  console.log(req.query);
-  console.log("guess: " + guess + "  player: " + player + "  sessionID: " + session);
   session = sessions[session];
   var ships = (player == 1 ? session.p2Ships : session.p1Ships);
   var hit = false;
   var result = {};
+  var shipCount = (player == 1 ? "p2Count" : "p1Count");
+  console.log(shipCount);
   for (var ship in ships) {
 	var coordinates = ships[ship];
 	for (var i = 0; i < coordinates.length; i++) {
     		if (guess == coordinates[i]) {
       			hit = true;
-			coordinates.splice(i, 1);
-			if (coordinates.length === 0)
-			{
-				session.shipSunk = ship;
-				result.ship = ship;
-				delete ships[ship];
-			}
+                coordinates.splice(i, 1);
+                if (coordinates.length === 0)
+                {
+                    session[shipCount]--;
+                    session.shipSunk = ship;
+                    result.ship = ship;
+                    delete ships[ship];
+                }
       			break;
-		}
+            }
     	}
   }
-  if (Object.keys(ships).length === 0 && obj.constructor === Object) {
+  console.log(session);
+  if (!session[shipCount]) {
 	result.playerWins = true;
 	session.winner = player;
   }
   session.hit = hit;
   session.guessLocation = guess;
   session.hasGuessed = true;
-  console.log(session);
   result.hit = hit;
   res.status(200).json(result);
 });
@@ -117,7 +116,7 @@ router.get('/check-guess', function(req, res, next) {
 			session.shipSunk = false;
 		}
 		if (session.winner) {
-			result.winner = winner;
+			result.playerLoses = true;
 		}
 	}
 	res.status(200).json(result);

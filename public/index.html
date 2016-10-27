@@ -13,15 +13,22 @@
                 <input type="text" id="sessionfield"><input type="button" value="join game" id="joingame">
             </div>
         </div>
-        <div id="game-load">
+        <div id="game-load" style="display: none">
             <p id="wait-msg">Waiting for player 2...</p>
             <p id="session-msg">Your game id is <span id="session-id"></span>. Player 2 must enter this id to join your game.</p>
         </div>
         <div id="game-view" style="display: none">
-            <h3 id="session-display"></h3>
-            <div id="player-board"></div>
-            <div id="opponent-board"></div>
+            <div class="game-grid" id="player-board">
+                <h2 class="board-title">Your Board</h2>
+            </div>
+            <div class="game-grid" id="opponent-board">
+                <h2 class="board-title">Player <span id="other-player-num"></span>'s Board</h2>
+            </div>
             <span id="turn-msg"></span>
+            <!--div class="alert" id="hit-alert">Hit!<br>
+                <span id="ship-sunk"></span>
+            </div>
+            <div class="alert" id="miss-alert">Miss!</div-->
         </div>
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
