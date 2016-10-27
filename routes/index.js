@@ -22,8 +22,7 @@ router.get('/', function(req, res, next) {
 router.get('/open-session', function(req, res, next) {
   var sessionID = generateSessionID();
   var session = {
-    hasGuessed: false,
-    guessPlayer: 1,
+    turn: 1,
     guessLocation: -1,
     shipSunk: false,
     hit: false,
@@ -64,11 +63,11 @@ router.get('/guess', function(req, res, next) {
   var player = req.query.player;
   var session = req.query.session;
   session = sessions[session];
+  session.turn = (player == 1) ? 2 : 1;
   var ships = (player == 1 ? session.p2Ships : session.p1Ships);
   var hit = false;
   var result = {};
   var shipCount = (player == 1 ? "p2Count" : "p1Count");
-  console.log(shipCount);
   for (var ship in ships) {
 	var coordinates = ships[ship];
 	for (var i = 0; i < coordinates.length; i++) {
@@ -104,9 +103,9 @@ router.get('/check-player', function(req, res, next) {
 });
 router.get('/check-guess', function(req, res, next) {
 	var session = sessions[req.query.session];
-	var result = {isTurnOver: session.hasGuessed};
-	if (req.query.player != session.guessPlayer && session.hasGuessed) {
-		session.hasGuessed = false;
+    var switchTurn = req.query.player == session.turn;
+	var result = {isTurnOver: switchTurn};
+	if (switchTurn) {
 		session.guessPlayer = req.query.player;
 		result.hit = session.hit;
 		result.coordinates = session.guessLocation

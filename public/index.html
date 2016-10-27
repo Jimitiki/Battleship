@@ -6,12 +6,12 @@
         <title>Battleship</title>
     </head>
     <body>
-        <h1>BattleShip</h1>
+        <h1>BATTLESHIP</h1>
         <div id="init">
-            <input type="button" value="create new game" id="creategame">
-            <input type="button" value="join a game" onclick="$('#join').show();">
+            <span class="button" id="creategame">Create a Game</span>
+            <span class="button" onclick="$('#join').show();">Join a Game</span>
             <div id="join" style="display:none">
-                <input type="text" id="sessionfield"><input type="button" value="join game" id="joingame">
+                <input type="text" id="sessionfield"><span class="button" id="joingame">Join</span>
             </div>
         </div>
         <div id="game-load" style="display: none">
@@ -25,12 +25,12 @@
             <div class="game-grid" id="opponent-board">
                 <h2 class="board-title">Player <span id="other-player-num"></span>'s Board</h2>
             </div>
-            <span id="turn-msg"></span>
             <div class="alert" id="hit-alert" style="display: none">Hit!<br>
                 <span id="ship-sunk"></span>
             </div>
             <div class="alert" id="miss-alert" style="display: none">Miss!</div>
         </div>
+	<h3 id="turn-msg"></h3>
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script type="text/javascript" src="/javascripts/app.js"></script>

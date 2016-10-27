@@ -5,6 +5,29 @@ body {
 
 h1 {
     text-align: center;
+    color: #3498db;
+    font-size: 30px;
+}
+
+input {
+    font-size: 20px;
+    height: 35px;
+    margin-right: 14px;
+    margin-left: 4px;
+}
+
+.button {
+    color: #ffffff;
+    font-size: 20px;
+    background: #3498db;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+    margin: 0 4px;
+}
+
+.button:hover  {
+  background: #3cb0fd;
+  text-decoration: none;
 }
 
 .game-grid {
@@ -47,6 +70,25 @@ h1 {
     color: darkred;
 }
 
+#init {
+    margin-top: 100px;
+    text-align: center;
+}
+
+#game-load {
+    margin-top: 100px;
+    text-align: center;
+    font-size: 24px;
+}
+
+#session-id {
+    color: #3498db;
+}
+
+#join {
+    margin-top: 40px;
+}
+
 #miss-alert {
     background-color: lightgoldenrodyellow;
     color: darkgoldenrod;
@@ -60,9 +102,10 @@ h1 {
     float: right;
 }
 #turn-msg {
-    position: absolute;
-    bottom: 10px;
-    font-size: 18px;
+    margin-bottom: 10px;
+    font-size: 22px;
+    text-align: center;
+    color: #3498db;
 }
 #ship-sunk {
     font-size: 24px;

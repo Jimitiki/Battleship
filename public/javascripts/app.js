@@ -1,4 +1,4 @@
-var gameData = {player: 0, session: "", ships: {carrier: [], battleship: [], cruiser: [], submarine: [], destroyer: 2}};
+var gameData = {player: 0, session: "", ships: {carrier: [], battleship: [], cruiser: [], submarine: [], destroyer: 2}, guesses: []};
 
 var shipLengths = {carrier: 5, battleship: 4, submarine: 3, cruiser: 3, destroyer: 2};
 
@@ -38,47 +38,57 @@ function submitShips() {
 	});
 }
 function submitGuess() {
-    $(".not-guessed").off("click");
     var guess = $(this).attr("id");
-    $(this).removeClass("not-guessed");
-    var url = "/guess";
-    data = {guess: guess, player: gameData.player, session: gameData.session};
-    var opponent = 3 - gameData.player;
-    $.getJSON(url, data, function(data) {
-        $("#player-board img").css("opacity", 1);
-        $("#opponent-board img").css("opacity", 0.6);
-        var image = "";
-        if (data.hit) {
-            image = "/images/ship_hit.png";
-            if (data.ship) {
-                console.log("You sank a " + data.ship);
-                $("#ship-sunk").text("You sank a " + data.ship);
-                $("#ship-sunk").show();
+    var guessedBefore = false;
+    for (var i = 0; i < gameData.guesses.length; i++) {
+        if (guess === gameData.guesses[i]) {
+            guessedBefore = true;
+        }
+    }
+    if (!guessedBefore) {
+        gameData.guesses.push(guess);
+        event.stopPropagation();
+        $(".not-guessed").off();
+        $(this).removeClass("not-guessed");
+        var url = "/guess";
+        data = {guess: guess, player: gameData.player, session: gameData.session};
+        var opponent = 3 - gameData.player;
+        $.getJSON(url, data, function(data) {
+            $("#player-board img").css("opacity", 1);
+            $("#opponent-board img").css("opacity", 0.8);
+            var image = "";
+            if (data.hit) {
+                image = "/images/water_hit.png";
+                if (data.ship) {
+                    console.log("You sank a " + data.ship);
+                    $("#ship-sunk").text("You sank a " + data.ship);
+                    $("#ship-sunk").show();
+                }
+                $("#hit-alert").show();
+                setTimeout(function() {
+                    $("#hit-alert").hide(800, function() {
+                        $("#ship-sunk").hide();
+                    });
+                }, 300);
             }
-            $("#hit-alert").show();
-            setTimeout(function() {
-                $("#hit-alert").hide(800, function() {
-                    $("#ship-sunk").hide();
-                });
-            }, 300);
-        }
-        else {
-            image = "/images/miss.png";
-            $("#miss-alert").show();
-            setTimeout(function() {
-                $("#miss-alert").hide(800);                
-            }, 300);
-        }
-        $("#opponent-board #" + guess).attr("src", image);
-        console.log(data);
-        if (data.playerWins) {
-            $("#turn-msg").text("You Win!")
-        }
-        else {
-            pollServer();
-            $("#turn-msg").text("Player " + opponent + "'s turn");
-        }
-    });
+            else {
+                image = "/images/miss.png";
+                $("#miss-alert").show();
+                setTimeout(function() {
+                    $("#miss-alert").hide(800);                
+                }, 300);
+            }
+            $("#opponent-board #" + guess).attr("src", image);
+            console.log(data);
+            if (data.playerWins) {
+                $("#turn-msg").text("You Win!")
+            }
+            else {
+                pollServer();
+                $("#turn-msg").text("Player " + opponent + "'s turn");
+            }
+        });
+    }
 }
 
 function waitForJoin() {
@@ -89,27 +99,27 @@ function waitForJoin() {
 			if (data.joined) {
 				clearInterval(interval);
 				initializeGame();
-                $("#player-board img").css("opacity", 0.6);
+                $("#player-board img").css("opacity", 0.8);
                 $(".not-guessed").on("click", submitGuess);
                 $("#turn-msg").text("Your turn");
                 $("#other-player-num").text("2");
                 $("#game-view").show();
 			}
 		});
-	}, 1000);
+	}, 500);
 }
 
 function pollServer() {
-	$("#submit-guess").off("click");
+	$("#submit-guess").off();
 	$(".guess-disable").attr("disabled", true);
 	var interval = setInterval(function() {
 		url = '/check-guess';
 		data = {player: gameData.player, session: gameData.session};
 		$.getJSON(url, data, function(data) {
 			if (data.isTurnOver) {
-                $("#opponent-board img").css("opacity", 1);
-                $("#player-board img").css("opacity", 0.6);
 				clearInterval(interval);
+                $("#opponent-board img").css("opacity", 1);
+                $("#player-board img").css("opacity", 0.8);
                 if (data.hit) {
                     $("#player-board #" + data.coordinates).attr("src", "/images/ship_hit.png");
                     if (data.shipSunk) {
@@ -132,7 +142,7 @@ function pollServer() {
                 }
 			}
 		});
-	}, 1000);
+	}, 300);
 }
 
 function renderGame(shipTiles) {
